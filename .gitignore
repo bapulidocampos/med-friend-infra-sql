@@ -1,2 +1,4 @@
 .env
 /med-friend-data
+/consul-data
+/redis-data
