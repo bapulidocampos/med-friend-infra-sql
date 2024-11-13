@@ -1,0 +1,572 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="PostgreSQL" database="PostgreSQL" id="PostgreSQL-86" >
+	<schema name="public" >
+		<comment><![CDATA[standard public schema]]></comment>
+		<table name="area" row_count="0" spec="" >
+			<column name="area_id" type="bigint" length="64" jt="-5" mandatory="y" />
+			<column name="nombre" type="varchar" length="128" jt="12" />
+			<column name="entidad_id" type="bigint" length="64" jt="-5" />
+			<index name="pk_area" unique="PRIMARY_KEY" >
+				<column name="area_id" />
+			</index>
+			<fk name="fk_area_hospital" to_schema="public" to_table="entidad" options="" >
+				<fk_column name="entidad_id" pk="entidad_id" />
+			</fk>
+		</table>
+		<table name="entidad" prior="entidad_serial" >
+			<column name="entidad_id" type="bigserial" jt="-5" mandatory="y" />
+			<column name="nit" type="bigint" jt="-5" >
+				<comment><![CDATA[numero con el que se encuentra registrado]]></comment>
+			</column>
+			<column name="nit_alterno" type="varchar" length="254" jt="12" />
+			<column name="razon_social" type="varchar" length="254" jt="12" >
+				<comment><![CDATA[nombre de la entidad con el que se encuentra registrado]]></comment>
+			</column>
+			<column name="email" type="varchar" length="50" jt="12" />
+			<column name="activo" type="boolean" jt="16" />
+			<index name="pk_entidad_serial" unique="PRIMARY_KEY" >
+				<column name="entidad_id" />
+			</index>
+		</table>
+		<table name="equipo" row_count="0" spec="" >
+			<column name="equipo_id" type="bigint" length="64" jt="-5" mandatory="y" />
+			<column name="equipo-detalle-general_id" type="bigint" length="64" jt="-5" />
+			<column name="nombre" type="varchar" length="128" jt="12" >
+				<comment><![CDATA[marca-modelo]]></comment>
+			</column>
+			<index name="pk_equipo_0" unique="PRIMARY_KEY" >
+				<column name="equipo_id" />
+			</index>
+		</table>
+		<table name="equipo-detalle-general" row_count="0" spec="" >
+			<comment><![CDATA[detalles general que pueden compartir  muchos equipos]]></comment>
+			<column name="equipo-detalle-general_id" type="bigint" length="64" jt="-5" mandatory="y" />
+			<column name="marca" type="varchar" length="128" jt="12" >
+				<comment><![CDATA[marca del equipo como lo puede mindray o baster]]></comment>
+			</column>
+			<column name="modelo" type="varchar" length="128" jt="12" >
+				<comment><![CDATA[modelo del equipo]]></comment>
+			</column>
+			<column name="esgeneral" type="boolean" jt="16" >
+				<defo><![CDATA[false]]></defo>
+				<comment><![CDATA[este es verdadero o falso dependiendo si este detalle general esta carga para toda la aplicacion]]></comment>
+			</column>
+			<column name="entidad_id" type="bigint" length="64" jt="-5" >
+				<comment><![CDATA[este es el caso en el detalle-general se cargue desde un hospital ya que los cargados desde la aplicacion no encuentra el equipo]]></comment>
+			</column>
+			<column name="registro-invima" type="varchar" length="128" jt="12" >
+				<comment><![CDATA[registro invima que se registra dentro de la aplicacion]]></comment>
+			</column>
+			<column name="fecha_actualizacion_invima" type="timestamp" jt="93" >
+				<defo><![CDATA[CURRENT_TIMESTAMP]]></defo>
+				<comment><![CDATA[ultima vez donde se consulto el invima y se valido]]></comment>
+			</column>
+			<column name="esvalido-invima" type="boolean" jt="16" >
+				<defo><![CDATA[true]]></defo>
+				<comment><![CDATA[si el invima no se encuentra reportado]]></comment>
+			</column>
+			<column name="tipo-equipo-id" type="bigint" length="64" jt="-5" />
+			<index name="equipo_detalle_general_pk" unique="PRIMARY_KEY" >
+				<column name="equipo-detalle-general_id" />
+			</index>
+			<fk name="fk_equipo-detalle-general_tipo_equipi" to_schema="public" to_table="tipo-equipo" options="" >
+				<fk_column name="tipo-equipo-id" pk="tipo-equipo_id" />
+			</fk>
+			<fk name="fk_equipo-detalle-general" to_schema="public" to_table="entidad" options="" >
+				<fk_column name="entidad_id" pk="entidad_id" />
+			</fk>
+		</table>
+		<table name="grupo-hospitalario" row_count="0" spec="" >
+			<comment><![CDATA[grupo de hospitales bajo una misma administracion]]></comment>
+			<column name="grupo-hospitalario_id" type="bigint" length="64" jt="-5" mandatory="y" />
+			<column name="es_administrador" type="boolean" jt="16" >
+				<comment><![CDATA[usuario que tenga este hospital y el rol administrador, podra ver la informacion de todos los hospitales]]></comment>
+			</column>
+			<column name="entidad_id" type="bigint" length="64" jt="-5" />
+			<index name="grupo_hospitalario_pk" unique="PRIMARY_KEY" >
+				<column name="grupo-hospitalario_id" />
+			</index>
+			<fk name="fk_grupo-hospitalario_null" to_schema="public" to_table="entidad" options="" >
+				<fk_column name="entidad_id" pk="entidad_id" />
+			</fk>
+		</table>
+		<table name="mantenimiento_correctivo" row_count="0" spec="" >
+			<comment><![CDATA[mantenimiento correctivos del equipo]]></comment>
+			<column name="mantenimiento_correctivo_id" type="bigint" length="64" jt="-5" mandatory="y" />
+			<column name="ficha" type="bigint" length="64" jt="-5" >
+				<comment><![CDATA[la descripcion del daño del mantenimiento correctivo]]></comment>
+			</column>
+			<column name="fecha_creacion" type="timestamp" jt="93" >
+				<defo><![CDATA[CURRENT_TIMESTAMP]]></defo>
+			</column>
+			<column name="fecha_inicio_solucion" type="timestamp" jt="93" >
+				<comment><![CDATA[inicio del trabajo sobre el manteniento, es el momento cuando el equipo pasa a manos del resposable de solucionar]]></comment>
+			</column>
+			<column name="fecha_final_solucion" type="timestamp" jt="93" >
+				<comment><![CDATA[finalizacion, el momento donde el responsable da solucion al problema]]></comment>
+			</column>
+			<column name="fecha_reicorporacion" type="timestamp" jt="93" >
+				<comment><![CDATA[fecha en la que se reicorpora el equipo al area]]></comment>
+			</column>
+			<column name="responsable_id" type="bigint" length="64" jt="-5" />
+			<column name="re-equipo-area_id" type="bigint" length="64" jt="-5" />
+			<index name="pk_mantenimiento_correctivo" unique="PRIMARY_KEY" >
+				<column name="mantenimiento_correctivo_id" />
+			</index>
+			<fk name="fk_mantenimiento_correctivo" to_schema="public" to_table="usuario" options="" >
+				<fk_column name="responsable_id" pk="usuario_id" />
+			</fk>
+			<fk name="fk_mantenimiento_correctivo_equipo_id" to_schema="public" to_table="re-equipo-area" options="" >
+				<fk_column name="re-equipo-area_id" pk="re-equipo-area_id" />
+			</fk>
+		</table>
+		<table name="mantenimiento_preventivo" row_count="0" spec="" >
+			<column name="mantenimiento_preventivo_id" type="bigint" length="64" jt="-5" mandatory="y" />
+			<column name="responsable_id" type="bigint" length="64" jt="-5" >
+				<comment><![CDATA[id del usuario responsable del manteniento preventivo]]></comment>
+			</column>
+			<column name="re-equipo-area_id" type="bigint" length="64" jt="-5" />
+			<column name="fecha_asignacion" type="timestamp" jt="93" >
+				<defo><![CDATA[CURRENT_TIMESTAMP]]></defo>
+				<comment><![CDATA[fecha en la que se genera el mantenimiento preventivo]]></comment>
+			</column>
+			<column name="fecha_caducacion" type="timestamp" jt="93" >
+				<comment><![CDATA[fecha limite en la cual se debe realizar el mantenimiento]]></comment>
+			</column>
+			<column name="fecha_finalizacion" type="timestamp" jt="93" >
+				<comment><![CDATA[fecha de en la que se realiza el mantenimiento preventivo]]></comment>
+			</column>
+			<column name="plantilla-mantenimiento-preventivo_id" type="bigint" length="64" jt="-5" />
+			<index name="pk_mantenimiento_preventivo" unique="PRIMARY_KEY" >
+				<column name="mantenimiento_preventivo_id" />
+			</index>
+			<fk name="fk_mantenimiento_preventivo" to_schema="public" to_table="re-equipo-area" options="" >
+				<fk_column name="re-equipo-area_id" pk="re-equipo-area_id" />
+			</fk>
+			<fk name="fk_mantenimiento_preventivo_plantilla-mantenimiento-preventivo" to_schema="public" to_table="plantilla-mantenimiento-preventivo" options="" >
+				<fk_column name="plantilla-mantenimiento-preventivo_id" pk="plantilla-mantenimiento-preventivo_id" />
+			</fk>
+			<fk name="fk_mantenimiento_preventivo_responsable_usuario" to_schema="public" to_table="usuario" options="" >
+				<fk_column name="responsable_id" pk="usuario_id" />
+			</fk>
+		</table>
+		<table name="menu" prior="menu-serial" >
+			<column name="menu_id" type="bigserial" jt="-5" mandatory="y" />
+			<column name="menu_padre_id" type="bigint" jt="-5" />
+			<column name="entidad_id" type="bigint" jt="-5" />
+			<column name="recurso_id" type="integer" jt="4" />
+			<column name="descripcion" type="varchar" length="255" jt="12" />
+			<column name="nombre" type="varchar" length="128" jt="12" />
+			<index name="pk_menu_serial" unique="PRIMARY_KEY" >
+				<column name="menu_id" />
+			</index>
+			<fk name="fk_menu_serial_menu_serial" to_schema="public" to_table="menu" >
+				<fk_column name="menu_padre_id" pk="menu_id" />
+			</fk>
+			<fk name="fk_menu-serial_area" to_schema="public" to_table="entidad" >
+				<fk_column name="entidad_id" pk="entidad_id" />
+			</fk>
+			<fk name="fk_menu-serial_area_recurso" to_schema="public" to_table="recurso" >
+				<fk_column name="recurso_id" pk="recurso_id" />
+			</fk>
+		</table>
+		<table name="permiso" row_count="0" spec="" >
+			<column name="permiso_id" type="bigint" length="64" jt="-5" mandatory="y" >
+				<defo><![CDATA[nextval('permiso_serial_permiso_id_seq'::regclass)]]></defo>
+			</column>
+			<column name="nombre" type="varchar" length="128" jt="12" />
+			<column name="accion" type="varchar" length="2" jt="12" />
+			<index name="pk_permiso_serial" unique="PRIMARY_KEY" >
+				<column name="permiso_id" />
+			</index>
+		</table>
+		<table name="plantilla-mantenimiento-preventivo" row_count="0" spec="" >
+			<column name="plantilla-mantenimiento-preventivo_id" type="integer" length="32" jt="4" mandatory="y" />
+			<column name="checklist" type="json" jt="2000" >
+				<comment><![CDATA[funcionalidades del mantenimiento preventivo ejemplo para mantenimiento de monitor 
+{"pantalla": ["estado acpetable", "estado defiente", "no enciende"],
+"enchufe": ["estado aceptable", "estado defiente", "no envia poder"]}]]></comment>
+			</column>
+			<column name="observacion" type="varchar" jt="12" >
+				<comment><![CDATA[observacion que se le realiza al mantenimiento preventivo]]></comment>
+			</column>
+			<column name="esgeneral" type="boolean" jt="16" >
+				<comment><![CDATA[si es una cargada por defecto por el sistema o es una creada por el hospital]]></comment>
+			</column>
+			<column name="entidad_id" type="bigint" length="64" jt="-5" >
+				<comment><![CDATA[id del hospital]]></comment>
+			</column>
+			<column name="tipo-equipo_id" type="bigint" length="64" jt="-5" />
+			<index name="plantilla_mantenimiento_preventivo_pk" unique="PRIMARY_KEY" >
+				<column name="plantilla-mantenimiento-preventivo_id" />
+			</index>
+			<fk name="fk_plantilla-mantenimiento-preventivo_tipo_equipo" to_schema="public" to_table="tipo-equipo" options="" >
+				<fk_column name="tipo-equipo_id" pk="tipo-equipo_id" />
+			</fk>
+			<fk name="fk_plantilla-mantenimiento-preventivo" to_schema="public" to_table="entidad" options="" >
+				<fk_column name="entidad_id" pk="entidad_id" />
+			</fk>
+		</table>
+		<table name="re-equipo-area" row_count="0" spec="" >
+			<comment><![CDATA[es una combinacion de marca-modelo-placa]]></comment>
+			<column name="re-equipo-area_id" type="bigint" length="64" jt="-5" mandatory="y" />
+			<column name="placa" type="varchar" length="128" jt="12" >
+				<comment><![CDATA[es el numero unico que se encuentra registrado dentro de la institucion]]></comment>
+			</column>
+			<column name="area_id" type="bigint" length="64" jt="-5" >
+				<comment><![CDATA[area donde se encuentra asignado el equipo]]></comment>
+			</column>
+			<column name="estado" type="bigint" length="64" jt="-5" >
+				<comment><![CDATA[en que estado se encuentra el equipo si se encuentra en espera de mantenimiento preventivo o descontinuada por mantenimiento correctivo]]></comment>
+			</column>
+			<column name="numero-mantenimiento-preventivos" type="bigint" length="64" jt="-5" >
+				<comment><![CDATA[numero de mantenimiento preventivos que se le realizaron a este equipo]]></comment>
+			</column>
+			<column name="numero-mantenimiento-correctivos" type="bigint" length="64" jt="-5" >
+				<comment><![CDATA[numero de mantenimiento correctivos realizados sobre el equipo]]></comment>
+			</column>
+			<column name="se-encuentra-en-area" type="boolean" jt="16" >
+				<defo><![CDATA[true]]></defo>
+				<comment><![CDATA[se encuentra el equipo en la area asignada]]></comment>
+			</column>
+			<column name="area-temporal-id" type="bigint" length="64" jt="-5" >
+				<comment><![CDATA[el caso que el equipo no se encuentre en su area pero se encuentra en nueva area por necesidad del hospital]]></comment>
+			</column>
+			<column name="equipo_id" type="bigint" length="64" jt="-5" />
+			<column name="tipo-equipo_id" type="bigint" length="64" jt="-5" >
+				<comment><![CDATA[tipo de equipo al cual se encuentra relacionado el equipo con la finalidad de sacar la plantilla-mantenimiento-preventivo]]></comment>
+			</column>
+			<index name="pk_equipo" unique="PRIMARY_KEY" >
+				<column name="re-equipo-area_id" />
+			</index>
+			<fk name="fk_equipo-area_area" to_schema="public" to_table="area" options="" >
+				<fk_column name="area-temporal-id" pk="area_id" />
+			</fk>
+			<fk name="fk_re-equipo-area_equipo" to_schema="public" to_table="equipo" options="" >
+				<fk_column name="equipo_id" pk="equipo_id" />
+			</fk>
+			<fk name="fk_equipo_area" to_schema="public" to_table="area" options="" >
+				<fk_column name="area_id" pk="area_id" />
+			</fk>
+			<fk name="fk_re-equipo-area_null" to_schema="public" to_table="tipo-equipo" options="" >
+				<fk_column name="tipo-equipo_id" pk="tipo-equipo_id" />
+			</fk>
+		</table>
+		<table name="re-recurso-permiso" row_count="0" spec="" >
+			<column name="re-recurso-permiso_id" type="bigint" length="64" jt="-5" mandatory="y" />
+			<column name="recurso_id" type="bigint" length="64" jt="-5" />
+			<column name="rol_id" type="bigint" length="64" jt="-5" />
+			<column name="permiso_id" type="integer" length="32" jt="4" />
+			<index name="re_recurso_permiso_pk" unique="PRIMARY_KEY" >
+				<column name="re-recurso-permiso_id" />
+			</index>
+			<fk name="fk_re-recurso-permiso_rol" to_schema="public" to_table="rol" options="" >
+				<fk_column name="rol_id" pk="rol_id" />
+			</fk>
+			<fk name="fk_re-recurso-permiso_permiso" to_schema="public" to_table="permiso" options="" >
+				<fk_column name="permiso_id" pk="permiso_id" />
+			</fk>
+			<fk name="fk_re-recurso-permiso_recurso" to_schema="public" to_table="recurso" options="" >
+				<fk_column name="recurso_id" pk="recurso_id" />
+			</fk>
+		</table>
+		<table name="re-rol-recurso" row_count="0" spec="" >
+			<column name="re-rol-recurso_id" type="bigint" length="64" jt="-5" mandatory="y" >
+				<comment><![CDATA[relacion entre rol recurso y hospital]]></comment>
+			</column>
+			<column name="rol_id" type="bigint" length="64" jt="-5" />
+			<column name="recurso_id" type="bigint" length="64" jt="-5" />
+			<column name="entidad_id" type="bigint" length="64" jt="-5" />
+			<column name="acceso" type="varchar" length="7" jt="12" >
+				<comment><![CDATA[tipo de acceso parcial o total [PARCIAL, TOTAL], parcial solo puedo ver mi hospital, total puedo ver la informacion de todos los hospitales dentro del grupo hospitalario]]></comment>
+			</column>
+			<index name="re_rol_recurso_pk" unique="PRIMARY_KEY" >
+				<column name="re-rol-recurso_id" />
+			</index>
+			<fk name="fk_re-rol-recurso_rol" to_schema="public" to_table="rol" options="" >
+				<fk_column name="rol_id" pk="rol_id" />
+			</fk>
+			<fk name="fk_re-rol-recurso_hospital" to_schema="public" to_table="entidad" options="" >
+				<fk_column name="entidad_id" pk="entidad_id" />
+			</fk>
+			<fk name="fk_re-rol-recurso_recurso" to_schema="public" to_table="recurso" options="" >
+				<fk_column name="recurso_id" pk="recurso_id" />
+			</fk>
+		</table>
+		<table name="re-usuario-area" row_count="0" spec="" >
+			<column name="re-usuario-area_id" type="bigint" length="64" jt="-5" mandatory="y" />
+			<column name="area_id" type="bigint" length="64" jt="-5" />
+			<column name="usuario_id" type="bigint" length="64" jt="-5" />
+			<column name="entidad_id" type="bigint" length="64" jt="-5" />
+			<index name="re_usuario_area_pk" unique="PRIMARY_KEY" >
+				<column name="re-usuario-area_id" />
+			</index>
+			<fk name="fk_re-usuario-area_area" to_schema="public" to_table="area" options="" >
+				<fk_column name="area_id" pk="area_id" />
+			</fk>
+			<fk name="fk_re-usuario-area_usuario" to_schema="public" to_table="usuario" options="" >
+				<fk_column name="usuario_id" pk="usuario_id" />
+			</fk>
+			<fk name="fk_re-usuario-area_hospital" to_schema="public" to_table="entidad" options="" >
+				<fk_column name="entidad_id" pk="entidad_id" />
+			</fk>
+		</table>
+		<table name="re-usuario-rol" row_count="0" spec="" >
+			<column name="re-usuario-rol_id" type="bigint" length="64" jt="-5" mandatory="y" />
+			<column name="usuario_id" type="bigint" length="64" jt="-5" />
+			<column name="rol_id" type="bigint" length="64" jt="-5" />
+			<column name="entidad_id" type="integer" length="32" jt="4" />
+			<column name="fecha_inicio" type="timestamp" jt="93" />
+			<column name="fecha_fin" type="timestamp" jt="93" />
+			<column name="indefinido" type="boolean" jt="16" />
+			<index name="re_usuario_rol_pk" unique="PRIMARY_KEY" >
+				<column name="re-usuario-rol_id" />
+			</index>
+			<fk name="fk_re-usuario-rol_area" to_schema="public" to_table="rol" options="" >
+				<fk_column name="rol_id" pk="rol_id" />
+			</fk>
+			<fk name="fk_re-usuario-rol_equipo" to_schema="public" to_table="usuario" options="" >
+				<fk_column name="usuario_id" pk="usuario_id" />
+			</fk>
+			<fk name="fk_re-usuario-rol_hospital" to_schema="public" to_table="entidad" options="" >
+				<fk_column name="entidad_id" pk="entidad_id" />
+			</fk>
+		</table>
+		<table name="recurso" prior="recurso_serial" >
+			<column name="recurso_id" type="bigserial" jt="-5" mandatory="y" />
+			<column name="descripcion" type="varchar" length="255" jt="12" />
+			<column name="acceso" type="varchar" length="1024" jt="12" />
+			<index name="pk_recurso_serial" unique="PRIMARY_KEY" >
+				<column name="recurso_id" />
+			</index>
+		</table>
+		<table name="repuesto" row_count="0" spec="" >
+			<column name="repuesto_id" type="bigint" length="64" jt="-5" mandatory="y" />
+			<column name="nombre" type="varchar" length="128" jt="12" />
+			<column name="equipo_id" type="integer" length="32" jt="4" />
+			<index name="pk_repuesto" unique="PRIMARY_KEY" >
+				<column name="repuesto_id" />
+			</index>
+		</table>
+		<table name="respuesto-mantenimiento-correctivo" row_count="0" spec="" >
+			<column name="respuesto-mantenimiento-correctivo_id" type="bigint" length="64" jt="-5" mandatory="y" />
+			<column name="repuesto_id" type="bigint" length="64" jt="-5" />
+			<column name="mantenimiento_correctivo_id" type="bigint" length="64" jt="-5" />
+			<column name="disponible" type="boolean" jt="16" >
+				<defo><![CDATA[false]]></defo>
+			</column>
+			<column name="utilizados" type="bigint" length="64" jt="-5" >
+				<defo><![CDATA[0]]></defo>
+			</column>
+			<index name="respuesto_mantenimiento_correctivo_pk" unique="PRIMARY_KEY" >
+				<column name="respuesto-mantenimiento-correctivo_id" />
+			</index>
+			<fk name="fk_respuesto-mantenimiento-correctivo" to_schema="public" to_table="repuesto" options="" >
+				<fk_column name="repuesto_id" pk="repuesto_id" />
+			</fk>
+			<fk name="fk_respuesto-mantenimiento-correctivo_matenimiento_correctivo" to_schema="public" to_table="mantenimiento_correctivo" options="" >
+				<fk_column name="mantenimiento_correctivo_id" pk="mantenimiento_correctivo_id" />
+			</fk>
+		</table>
+		<table name="rol" row_count="0" spec="" >
+			<column name="rol_id" type="integer" length="32" jt="4" mandatory="y" />
+			<column name="nombre" type="varchar" length="128" jt="12" />
+			<column name="descripcion" type="varchar" length="255" jt="12" />
+			<column name="entidad_id" type="bigint" length="64" jt="-5" >
+				<comment><![CDATA[id del hospital al que se encuentra asignado el rol]]></comment>
+			</column>
+			<column name="activo" type="boolean" jt="16" />
+			<index name="pk_rol" unique="PRIMARY_KEY" >
+				<column name="rol_id" />
+			</index>
+			<fk name="fk_rol_hospital" to_schema="public" to_table="entidad" options="" >
+				<fk_column name="entidad_id" pk="entidad_id" />
+			</fk>
+		</table>
+		<table name="tipo-equipo" row_count="0" spec="" >
+			<column name="nombre" type="varchar" length="128" jt="12" >
+				<comment><![CDATA[nombre del tipo de equipo pueden ser monitores, rayos x los que se encuentren contemplados en la normativa]]></comment>
+			</column>
+			<column name="tipo-equipo_id" type="bigint" length="64" jt="-5" mandatory="y" />
+			<index name="tipo_equipo_pk" unique="PRIMARY_KEY" >
+				<column name="tipo-equipo_id" />
+			</index>
+		</table>
+		<table name="trazabilidad-usuario-accion" row_count="0" spec="" >
+			<column name="trazabalidad-usuario-accion_id" type="bigint" length="64" jt="-5" mandatory="y" />
+			<column name="usuario_id" type="bigint" length="64" jt="-5" />
+			<column name="recurso_id" type="bigint" length="64" jt="-5" />
+			<column name="permiso_id" type="bigint" length="64" jt="-5" />
+			<column name="accion" type="varchar" length="2" jt="12" />
+			<column name="fecha_ejecucion" type="timestamp" jt="93" />
+			<column name="estado" type="integer" length="32" jt="4" >
+				<comment><![CDATA[si este finalizo con 200 OK o con algun estado de error]]></comment>
+			</column>
+			<column name="mensaje" type="varchar" length="256" jt="12" >
+				<comment><![CDATA[mensaje que devuelve la ejecucion]]></comment>
+			</column>
+			<index name="trazabilidad_usuario_accion_pk" unique="PRIMARY_KEY" >
+				<column name="trazabalidad-usuario-accion_id" />
+			</index>
+			<fk name="fk_trazabilidad-usuario-accion_permiso" to_schema="public" to_table="permiso" options="" >
+				<fk_column name="permiso_id" pk="permiso_id" />
+			</fk>
+			<fk name="fk_trazabilidad-usuario-accion" to_schema="public" to_table="usuario" options="" >
+				<fk_column name="usuario_id" pk="usuario_id" />
+			</fk>
+			<fk name="fk_trazabilidad-usuario-accion_recurso" to_schema="public" to_table="recurso" options="" >
+				<fk_column name="recurso_id" pk="recurso_id" />
+			</fk>
+		</table>
+		<table name="trazabilidad-usuario-login" row_count="0" spec="" >
+			<comment><![CDATA[trazabilidad de acceso del los usuarios a la aplicacion]]></comment>
+			<column name="trazabilidad-usuario-login_id" type="bigint" length="64" jt="-5" mandatory="y" />
+			<column name="fecha_ingreso" type="timestamp" jt="93" >
+				<defo><![CDATA[CURRENT_TIMESTAMP]]></defo>
+				<comment><![CDATA[fecha de ingreso del usuario a la aplicacion]]></comment>
+			</column>
+			<column name="usuario_id" type="bigint" length="64" jt="-5" />
+			<column name="fecha_salida" type="timestamp" jt="93" >
+				<comment><![CDATA[fecha de salida del usuario si es null se encuentra con seccion abierta]]></comment>
+			</column>
+			<column name="caducada" type="boolean" jt="16" >
+				<defo><![CDATA[false]]></defo>
+				<comment><![CDATA[si el usuario ya caducado su seccion]]></comment>
+			</column>
+			<index name="trazabilidad_usuario_login_pk" unique="PRIMARY_KEY" >
+				<column name="trazabilidad-usuario-login_id" />
+			</index>
+			<fk name="fk_trazabilidad-usuario-login" to_schema="public" to_table="usuario" options="" >
+				<fk_column name="usuario_id" pk="usuario_id" />
+			</fk>
+		</table>
+		<table name="usuario" prior="usuario_serial" >
+			<column name="usuario_id" type="bigserial" jt="-5" mandatory="y" />
+			<column name="usuario" type="bigint" jt="-5" >
+				<comment><![CDATA[identificacion del usuario]]></comment>
+			</column>
+			<column name="nombre_1" type="varchar" jt="12" >
+				<comment><![CDATA[primer nombre del usuario]]></comment>
+			</column>
+			<column name="nombre_2" type="varchar" jt="12" >
+				<comment><![CDATA[segundo nombre del usuario]]></comment>
+			</column>
+			<column name="apellido_paterno" type="varchar" length="20" jt="12" />
+			<column name="apellido_materno" type="varchar" length="20" jt="12" />
+			<column name="email" type="varchar" length="50" jt="12" />
+			<column name="cambiar_clave" type="boolean" jt="16" />
+			<column name="fecha_cambio_clave" type="timestamp" jt="93" />
+			<column name="fecha_creacion" type="timestamp" jt="93" />
+			<column name="activo" type="boolean" jt="16" />
+			<column name="fecha_retiro" type="timestamp" jt="93" />
+			<column name="tiempo_valides_token" type="varchar" length="10" jt="12" />
+			<column name="clave" type="varchar" length="100" jt="12" />
+			<index name="pk_usuario_serial" unique="PRIMARY_KEY" >
+				<column name="usuario_id" />
+			</index>
+		</table>
+		<sequence name="entidad_serial_entidad_id_seq" options="START WITH 1 INCREMENT BY 1" />
+		<sequence name="menu_serial_menu_id_seq" options="START WITH 1 INCREMENT BY 1" />
+		<sequence name="permiso_serial_permiso_id_seq" options="START WITH 1 INCREMENT BY 1" />
+		<sequence name="recurso_serial_recurso_id_seq" options="START WITH 1 INCREMENT BY 1" />
+		<sequence name="usuario_serial_usuario_id_seq" options="START WITH 1 INCREMENT BY 1" />
+	</schema>
+	<layout name="Main Layout" id="Layout-1bed" show_relation="columns" >
+		<entity schema="public" name="area" color="BED3F4" x="2414" y="85" />
+		<entity schema="public" name="entidad" color="C7F4BE" x="1258" y="408" />
+		<entity schema="public" name="equipo" color="BED3F4" x="1785" y="187" />
+		<entity schema="public" name="equipo-detalle-general" color="C7F4BE" x="969" y="85" />
+		<entity schema="public" name="grupo-hospitalario" color="C7F4BE" x="1292" y="170" />
+		<entity schema="public" name="mantenimiento_correctivo" color="BED3F4" x="2414" y="391" />
+		<entity schema="public" name="mantenimiento_preventivo" color="BED3F4" x="2057" y="391" />
+		<entity schema="public" name="menu" color="F4DDBE" x="680" y="391" />
+		<entity schema="public" name="permiso" color="F4DDBE" x="51" y="357" />
+		<entity schema="public" name="plantilla-mantenimiento-preventivo" color="C7F4BE" x="1156" y="680" />
+		<entity schema="public" name="re-equipo-area" color="BED3F4" x="2074" y="85" />
+		<entity schema="public" name="re-recurso-permiso" color="F4DDBE" x="255" y="136" />
+		<entity schema="public" name="re-rol-recurso" color="C7F4BE" x="1020" y="408" />
+		<entity schema="public" name="re-usuario-area" color="BED3F4" x="2601" y="85" />
+		<entity schema="public" name="re-usuario-rol" color="F4DDBE" x="510" y="714" />
+		<entity schema="public" name="recurso" color="F4DDBE" x="510" y="391" />
+		<entity schema="public" name="repuesto" color="BED3F4" x="3077" y="391" />
+		<entity schema="public" name="respuesto-mantenimiento-correctivo" color="BED3F4" x="2720" y="391" />
+		<entity schema="public" name="rol" color="C7F4BE" x="1530" y="408" />
+		<entity schema="public" name="tipo-equipo" color="C7F4BE" x="1530" y="680" />
+		<entity schema="public" name="trazabilidad-usuario-accion" color="F4DDBE" x="510" y="85" />
+		<entity schema="public" name="trazabilidad-usuario-login" color="F4DDBE" x="204" y="714" />
+		<entity schema="public" name="usuario" color="F4DDBE" x="238" y="391" />
+		<group name="equipo" color="ECF0F7" >
+			<entity schema="public" name="equipo" />
+			<entity schema="public" name="repuesto" />
+			<entity schema="public" name="area" />
+			<entity schema="public" name="respuesto-mantenimiento-correctivo" />
+			<entity schema="public" name="mantenimiento_preventivo" />
+			<entity schema="public" name="re-usuario-area" />
+			<entity schema="public" name="re-equipo-area" />
+			<entity schema="public" name="mantenimiento_correctivo" />
+		</group>
+		<group name="hospital" color="EEF7EC" >
+			<entity schema="public" name="tipo-equipo" />
+			<entity schema="public" name="grupo-hospitalario" />
+			<entity schema="public" name="rol" />
+			<entity schema="public" name="equipo-detalle-general" />
+			<entity schema="public" name="re-rol-recurso" />
+			<entity schema="public" name="entidad" />
+			<entity schema="public" name="plantilla-mantenimiento-preventivo" />
+		</group>
+		<group name="usuario" color="F7F2EC" >
+			<entity schema="public" name="permiso" />
+			<entity schema="public" name="re-recurso-permiso" />
+			<entity schema="public" name="re-usuario-rol" />
+			<entity schema="public" name="trazabilidad-usuario-login" />
+			<entity schema="public" name="trazabilidad-usuario-accion" />
+			<entity schema="public" name="usuario" />
+			<entity schema="public" name="recurso" />
+			<entity schema="public" name="menu" />
+		</group>
+		<browser id="Browse-1535" name="menu" confirm_updates="y" confirmed="y" >
+			<browse_table schema="public" entity="menu" x="20" y="20" width="270" height="164" />
+		</browser>
+	</layout>
+	<layout name="~Layout with Sample Tools" id="Layout-176f" show_column_type="y" show_relation="columns" >
+		<entity schema="public" name="area" color="BED3F4" x="2856" y="51" />
+		<entity schema="public" name="equipo" color="BED3F4" x="2176" y="153" />
+		<entity schema="public" name="equipo-detalle-general" color="C7F4BE" x="1173" y="51" />
+		<entity schema="public" name="grupo-hospitalario" color="C7F4BE" x="1547" y="136" />
+		<entity schema="public" name="mantenimiento_correctivo" color="BED3F4" x="2856" y="357" />
+		<entity schema="public" name="mantenimiento_preventivo" color="BED3F4" x="2465" y="357" />
+		<entity schema="public" name="permiso" color="F4DDBE" x="51" y="119" />
+		<entity schema="public" name="plantilla-mantenimiento-preventivo" color="C7F4BE" x="1462" y="646" />
+		<entity schema="public" name="re-equipo-area" color="BED3F4" x="2482" y="51" />
+		<entity schema="public" name="re-recurso-permiso" color="F4DDBE" x="306" y="102" />
+		<entity schema="public" name="re-rol-recurso" color="C7F4BE" x="1258" y="374" />
+		<entity schema="public" name="re-usuario-area" color="BED3F4" x="3111" y="51" />
+		<entity schema="public" name="re-usuario-rol" color="F4DDBE" x="595" y="680" />
+		<entity schema="public" name="repuesto" color="BED3F4" x="3570" y="357" />
+		<entity schema="public" name="respuesto-mantenimiento-correctivo" color="BED3F4" x="3179" y="357" />
+		<entity schema="public" name="rol" color="C7F4BE" x="1870" y="374" />
+		<entity schema="public" name="tipo-equipo" color="C7F4BE" x="1870" y="646" />
+		<entity schema="public" name="trazabilidad-usuario-accion" color="F4DDBE" x="595" y="51" />
+		<entity schema="public" name="trazabilidad-usuario-login" color="F4DDBE" x="272" y="680" />
+		<script name="SQL Editor" id="Editor-f27" language="SQL" >
+			<string><![CDATA[SELECT
+	hospital_id, nit, nit_alterno, razon_social, email, activo
+FROM
+	"public".hospital l;]]></string>
+		</script>
+		<query id="Query-2419" name="Query Builder" >
+			<query_table schema="public" name="rol" alias="r" x="51" y="51" >
+				<column name="rol_id" />
+				<column name="nombre" />
+				<column name="descripcion" />
+				<column name="activo" />
+				<query_table schema="public" name="re-recurso-permiso" alias="r1" x="255" y="51" fk="fk_re-recurso-permiso_rol" type="Inner Join" >
+					<column name="re-recurso-permiso_id" />
+					<column name="recurso_id" />
+					<column name="rol_id" />
+					<column name="permiso_id" />
+				</query_table>
+			</query_table>
+		</query>
+	</layout>
+</project>

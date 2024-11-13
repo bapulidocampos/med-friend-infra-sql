@@ -1,0 +1,10 @@
+MAC
+PGPASSWORD=H0sp1T4l /opt/homebrew/Cellar/postgresql@16/16.4_3/bin/pg_dump 
+--host=localhost --port=7500 --username=elliot --format=c 
+--file=/Users/matador/code/med-friend/med-friend-infra-sql/dumps/dump-med-friend.sql 
+-n public med-friend
+
+
+WINDOWS
+set PGPASSWORD=H0sp1T4l
+"C:\Program Files\PostgreSQL\16\bin\pg_dump.exe" --host=localhost --port=7500 --username=elliot --format=c --file="C:\Users\matador\code\med-friend\med-friend-infra-sql\dumps\dump-med-friend.sql" -n public med-friend

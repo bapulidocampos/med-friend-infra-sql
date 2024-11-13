@@ -1,0 +1,6 @@
+MAC
+PGPASSWORD=H0sp1T4l /opt/homebrew/Cellar/postgresql@16/16.4_3/bin/pg_restore --host=localhost --port=7500 --username=elliot --dbname=med-friend-dump --schema=public /Users/matador/code/med-friend/med-friend-infra-sql/dumps/dump-med-friend.sql
+
+WINDOWS
+set PGPASSWORD=H0sp1T4l
+"C:\Program Files\PostgreSQL\16\bin\pg_restore.exe" --host=localhost --port=7500 --username=elliot --dbname=med-friend-dump --schema=public "C:\Users\matador\code\med-friend\med-friend-infra-sql\dumps\dump-med-friend.sql"
